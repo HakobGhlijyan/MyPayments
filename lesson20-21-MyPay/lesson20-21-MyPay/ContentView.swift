@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+// MARK: - Model Row
+
 struct ExpenseItem: Identifiable, Codable {
     var id = UUID()
     let name: String
@@ -14,9 +16,13 @@ struct ExpenseItem: Identifiable, Codable {
     let amount: Int
 }
 
+// MARK: - Class Items
+
 class Expenses: ObservableObject {
     
+    // MARK: - Encodable
     @Published var items = [ExpenseItem]() {
+        
         didSet {
             let encoder = JSONEncoder()
             if let endcoded = try? encoder.encode(items) {
@@ -25,6 +31,7 @@ class Expenses: ObservableObject {
         }
     }
     
+    // MARK: - Decodable
     init() {
         
         if let items = UserDefaults.standard.data(forKey: "Items") {
@@ -38,14 +45,21 @@ class Expenses: ObservableObject {
     
 }
 
+// MARK: - VIEW
+
 struct ContentView: View {
+    
     @State private var showingAddExpense = false
     @ObservedObject var expenses = Expenses()
     
     var body: some View {
         
+        // MARK: - Navigation
+        
         NavigationView {
+            
             List {
+                // MARK: - ForEach
                 ForEach(expenses.items) { item in
                    
                     HStack {
@@ -55,13 +69,17 @@ struct ContentView: View {
                             Text(item.type)
                         }
                         Spacer()
-                        Text("$\(item.amount)")
+                        Text("$ \(item.amount)")
                     }
                     
                 }
                 .onDelete(perform: removeItems)
-            }
+                
+            } //.listStyle(.grouped)
+            
             .navigationTitle("My Payments")
+            .navigationBarTitleDisplayMode(.inline)
+            
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
@@ -77,10 +95,16 @@ struct ContentView: View {
         }
     }
     
+// MARK: - Func Delete Items
+    
+    
     func removeItems(as offsets: IndexSet) {
         expenses.items.remove(atOffsets: offsets)
     }
+    
 }
+
+// MARK: - ContentView_Previews
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
